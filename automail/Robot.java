@@ -4,6 +4,7 @@ import exceptions.ExcessiveDeliveryException;
 import exceptions.ItemTooHeavyException;
 import strategies.IMailPool;
 import strategies.IRobotBehaviour;
+import strategies.MyRobotBehaviour;
 
 /**
  * The robot delivers mail!
@@ -35,13 +36,13 @@ public class Robot {
      * @param mailPool is the source of mail items
      * @param strong is whether the robot can carry heavy items
      */
-    public Robot(IRobotBehaviour behaviour, IMailDelivery delivery, IMailPool mailPool, boolean strong){
+    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean strong){
     	id = "R" + hashCode();
         // current_state = RobotState.WAITING;
     	current_state = RobotState.RETURNING;
         current_floor = Building.MAILROOM_LOCATION;
         tube = new StorageTube();
-        this.behaviour = behaviour;
+        behaviour = new MyRobotBehaviour(strong); //Apply creator principle
         this.delivery = delivery;
         this.mailPool = mailPool;
         this.strong = strong;
@@ -71,7 +72,7 @@ public class Robot {
                 }
     		case WAITING:
     			/** Tell the sorter the robot is ready */
-    			mailPool.fillStorageTube(tube, strong);
+    			mailPool.fillStorageTube(tube, strong); //configurations
                 // System.out.println("Tube total size: "+tube.getTotalOfSizes());
                 /** If the StorageTube is ready and the Robot is waiting in the mailroom then start the delivery */
                 if(!tube.isEmpty()){

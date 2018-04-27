@@ -22,7 +22,7 @@ public class Robot {
     private int destination_floor;
     private IMailPool mailPool;
     private boolean strong;
-    
+    private Building building;
     private MailItem deliveryItem;
     
     private int deliveryCounter;
@@ -36,11 +36,12 @@ public class Robot {
      * @param mailPool is the source of mail items
      * @param strong is whether the robot can carry heavy items
      */
-    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean strong){
+    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean strong, Building building){
     	id = "R" + hashCode();
         // current_state = RobotState.WAITING;
     	current_state = RobotState.RETURNING;
-        current_floor = Building.MAILROOM_LOCATION;
+    	this.building = building;
+   current_floor = building.getMailRoom();
         tube = new StorageTube();
         behaviour = new MyRobotBehaviour(strong); //Apply creator principle
         this.delivery = delivery;
@@ -58,7 +59,7 @@ public class Robot {
     		/** This state is triggered when the robot is returning to the mailroom after a delivery */
     		case RETURNING:
     			/** If its current position is at the mailroom, then the robot should change state */
-                if(current_floor == Building.MAILROOM_LOCATION){
+                if(current_floor == building.getMailRoom()){
                 	while(!tube.isEmpty()) {
                 		MailItem mailItem = tube.pop();
                 		mailPool.addToPool(mailItem);
@@ -67,7 +68,7 @@ public class Robot {
                 	changeState(RobotState.WAITING);
                 } else {
                 	/** If the robot is not at the mailroom floor yet, then move towards it! */
-                    moveTowards(Building.MAILROOM_LOCATION);
+                    moveTowards(building.getMailRoom());
                 	break;
                 }
     		case WAITING:

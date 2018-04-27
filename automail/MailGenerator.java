@@ -9,8 +9,8 @@ import strategies.IMailPool;
  * Constants in this class are based on observations of typical mail arrivals
  */
 public class MailGenerator {
-
-    public final int MAIL_TO_CREATE;
+	
+	public final int MAIL_TO_CREATE;
 
     private int mailCreated;
 
@@ -21,27 +21,31 @@ public class MailGenerator {
     private IMailPool mailPool;
 
     private HashMap<Integer,ArrayList<MailItem>> allMail;
-
+    private Building building;
     /**
      * Constructor for mail generation
      * @param mailToCreate roughly how many mail items to create
      * @param mailPool where mail items go on arrival
+     * @param building2 
+     * @param seedMap 
      * @param seed random seed for generating mail
+     * @param building to deliver mail to
      */
-    public MailGenerator(int mailToCreate, IMailPool mailPool, HashMap<Boolean,Integer> seed){
+    public MailGenerator(int mailToCreate, IMailPool mailPool, HashMap<Boolean, Integer> seed, Building building){
         if(seed.containsKey(true)){
         	this.random = new Random((long) seed.get(true));
-        }
-        else{
+        }else{
         	this.random = new Random();	
         }
+
         // Vary arriving mail by +/-20%
-        MAIL_TO_CREATE = mailToCreate*4/5 + random.nextInt(mailToCreate*2/5);
+           MAIL_TO_CREATE = mailToCreate*4/5 + random.nextInt(mailToCreate*2/5);
         // System.out.println("Num Mail Items: "+MAIL_TO_CREATE);
         mailCreated = 0;
         complete = false;
         allMail = new HashMap<Integer,ArrayList<MailItem>>();
         this.mailPool = mailPool;
+        this.building = building;
     }
 
     /**
@@ -67,7 +71,7 @@ public class MailGenerator {
      * @return a destination floor between the ranges of GROUND_FLOOR to FLOOR
      */
     private int generateDestinationFloor(){
-        return Building.LOWEST_FLOOR + random.nextInt(Building.FLOORS);
+        return building.getLowest() + random.nextInt(building.getFloors());
     }
 
     /**

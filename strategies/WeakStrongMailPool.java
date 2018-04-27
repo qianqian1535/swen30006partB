@@ -14,11 +14,11 @@ public class WeakStrongMailPool implements IMailPool{
 	private int divider;
 	private static final int MAX_WEIGHT = 2000;
 
-	public WeakStrongMailPool(){
+	public WeakStrongMailPool(Building building){
 		// Start empty
 		upper = new LinkedList<MailItem>();
 		lower = new LinkedList<MailItem>();
-		divider = Building.FLOORS / 2;  // Top normal floor for strong robot
+		divider = building.getFloors() / 2;  // Top normal floor for strong robot
 	}
 
 	private int priority(MailItem m) {

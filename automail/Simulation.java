@@ -15,19 +15,16 @@ import java.util.Properties;
  * This class simulates the behaviour of AutoMail
  */
 public class Simulation {
-
-    /** Constant for the mail generator */
-    private static final int MAIL_TO_CREATE = 180;
-    
-
+   
     private static ArrayList<MailItem> MAIL_DELIVERED;
     private static double total_score = 0;
-
-    public static void main(String[] args) { /*throws IOException {
+    private static double penalty;
+    public static void main(String[] args) throws IOException {
    	// Should probably be using properties here
     	Properties automailProperties = new Properties();
 		// Defaults
-		automailProperties.setProperty("Name_of_Property", "20");  // Property value may need to be converted from a string to the appropriate type
+		//automailProperties.setProperty("Seed",  Integer.parseInt("36"));  
+		// Property value may need to be converted from a string to the appropriate type
 
 		FileReader inStream = null;
 		
@@ -39,28 +36,33 @@ public class Simulation {
 	                inStream.close();
 	            }
 		}
-		
-		int i = Integer.parseInt(automailProperties.getProperty("Name_of_Property"));
-*/
-
-        MAIL_DELIVERED = new ArrayList<MailItem>();
-                
-        /** Used to see whether a seed is initialized or not */
+		/*define values and initiate objects from the info in Properties file*/
         HashMap<Boolean, Integer> seedMap = new HashMap<>();
+		int seed = Integer.parseInt(automailProperties.getProperty("Seed"));
+		seedMap.put(true, seed);
+		 /** Read the first argument and save it as a seed if it exists */
+	      /*  if(args.length != 0){
+	        	int seed = Integer.parseInt(args[0]);
+	        	seedMap.put(true, seed);
+	        } else{
+	        	seedMap.put(false, 0);
+	        }*/
+		String bot1 = automailProperties.getProperty("Robot_Type_1");
+		String bot2 = automailProperties.getProperty("Robot_Type_2");
+		//create building object with default mailroom location and lowest level being 1
+        Building building =new Building(Integer.parseInt(automailProperties.getProperty("Number_of_Floors")), 1,1);
+		
+        Automail automail = new Automail(new ReportDelivery(), bot1, bot2, building);
         
-        /** Read the first argument and save it as a seed if it exists */
-        if(args.length != 0){
-        	int seed = Integer.parseInt(args[0]);
-        	seedMap.put(true, seed);
-        } else{
-        	seedMap.put(false, 0);
-        }
-        Automail automail = new Automail(new ReportDelivery());
-        MailGenerator generator = new MailGenerator(MAIL_TO_CREATE, automail.mailPool, seedMap);
-        
+        int mailToCreate = Integer.parseInt(automailProperties.getProperty("Mail_to_Create"));
+        MailGenerator generator = new MailGenerator(mailToCreate, automail.mailPool, seedMap, building);
+        Clock.LAST_DELIVERY_TIME = Integer.parseInt(automailProperties.getProperty("Last_Delivery_Time"));
+        penalty = Double.parseDouble(automailProperties.getProperty("Delivery_Penalty"));
         /** Initiate all the mail */
+        MAIL_DELIVERED = new ArrayList<MailItem>();
         generator.generateAllMail();
         PriorityMailItem priority;
+        
         while(MAIL_DELIVERED.size() != generator.MAIL_TO_CREATE) {
         	//System.out.println("-- Step: "+Clock.Time());
             priority = generator.step();
@@ -103,8 +105,7 @@ public class Simulation {
     }
     
     private static double calculateDeliveryScore(MailItem deliveryItem) {
-    	// Penalty for longer delivery times
-    	final double penalty = 1.1;
+   
     	double priority_weight = 0;
         // Take (delivery time - arrivalTime)**penalty * (1+sqrt(priority_weight))
     	if(deliveryItem instanceof PriorityMailItem){
@@ -114,6 +115,7 @@ public class Simulation {
     }
 
     public static void printResults(){
+   // 	System.out.println("Mail to create: "+ mailToCreate);
         System.out.println("T: "+Clock.Time()+" | Simulation complete!");
         System.out.println("Final Delivery time: "+Clock.Time());
         System.out.printf("Final Score: %.2f%n", total_score);

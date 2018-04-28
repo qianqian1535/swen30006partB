@@ -37,7 +37,7 @@ public class Robot {
      * @param upper is whether the robot deliver to upper or lower floors, lower floor bots also deliver all priority items
      * @param allHeavy is whether the robot delivers all the heavy items in the building
      */
-    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean upper, boolean allHeavy, boolean strong, Building building){
+    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean allHeavy, boolean strong, Building building){
     	id = "R" + hashCode();
         // current_state = RobotState.WAITING;
     	current_state = RobotState.RETURNING;
@@ -74,7 +74,7 @@ public class Robot {
                 }
     		case WAITING:
     			/** Tell the sorter the robot is ready */
-    			mailPool.fillStorageTube(tube, strong); //configurations
+    			mailPool.fillStorageTube(tube); //configurations
                 // System.out.println("Tube total size: "+tube.getTotalOfSizes());
                 /** If the StorageTube is ready and the Robot is waiting in the mailroom then start the delivery */
                 if(!tube.isEmpty()){

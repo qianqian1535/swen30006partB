@@ -2,7 +2,7 @@ package automail;
 
 import java.util.*;
 
-import strategies.IMailPool;
+import strategies.MailDistribution;
 
 /**
  * This class generates the mail.
@@ -18,20 +18,20 @@ public class MailGenerator {
     /** This seed is used to make the behaviour deterministic */
     
     private boolean complete;
-    private IMailPool mailPool;
+    private MailDistribution mailDistribution;
 
     private HashMap<Integer,ArrayList<MailItem>> allMail;
     private Building building;
     /**
      * Constructor for mail generation
      * @param mailToCreate roughly how many mail items to create
-     * @param mailPool where mail items go on arrival
+     * @param mailDistribution adds mail to be sorted into upper or lower mail pool
      * @param building2 
      * @param seedMap 
      * @param seed random seed for generating mail
      * @param building to deliver mail to
      */
-    public MailGenerator(int mailToCreate, IMailPool mailPool, HashMap<Boolean, Integer> seed, Building building){
+    public MailGenerator(int mailToCreate, MailDistribution mailDistribution, HashMap<Boolean, Integer> seed, Building building){
         if(seed.containsKey(true)){
         	this.random = new Random((long) seed.get(true));
         }else{
@@ -44,7 +44,7 @@ public class MailGenerator {
         mailCreated = 0;
         complete = false;
         allMail = new HashMap<Integer,ArrayList<MailItem>>();
-        this.mailPool = mailPool;
+        this.mailDistribution = mailDistribution;
         this.building = building;
     }
 
@@ -150,7 +150,7 @@ public class MailGenerator {
             for(MailItem mailItem : allMail.get(Clock.Time())){
             	if (mailItem instanceof PriorityMailItem) priority = ((PriorityMailItem) mailItem);
                 System.out.printf("T: %3d > new addToPool [%s]%n", Clock.Time(), mailItem.toString());
-                mailPool.addToPool(mailItem);
+                mailDistribution.addToDistributionPool(mailItem);
             }
         }
         return priority;

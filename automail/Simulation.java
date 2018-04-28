@@ -55,7 +55,7 @@ public class Simulation {
         Automail automail = new Automail(new ReportDelivery(), bot1, bot2, building);
         
         int mailToCreate = Integer.parseInt(automailProperties.getProperty("Mail_to_Create"));
-        MailGenerator generator = new MailGenerator(mailToCreate, automail.mailPool, seedMap, building);
+        MailGenerator generator = new MailGenerator(mailToCreate, automail.mailDistribution, seedMap, building);
         Clock.LAST_DELIVERY_TIME = Integer.parseInt(automailProperties.getProperty("Last_Delivery_Time"));
         penalty = Double.parseDouble(automailProperties.getProperty("Delivery_Penalty"));
         /** Initiate all the mail */

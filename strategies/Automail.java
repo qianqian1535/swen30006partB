@@ -7,7 +7,13 @@ import automail.Robot;
 public class Automail {
 
 	public Robot robot1, robot2;
-	public IMailPool mailPool;
+	private IMailPool lowerMailPool;
+	private IMailPool upperMailPool;
+	private boolean robot1Big = false;
+	private boolean robot2Big = false;
+	private boolean hasBig = false;
+
+	public MailDistribution mailDistribution;
 
 	public static enum BotType {
 		BIG, STRONG, WEAK, INVALID;
@@ -19,7 +25,6 @@ public class Automail {
 		/** Initialize the MailPool */
 
 		//// Swap the next line for the one below
-		mailPool = new WeakStrongMailPool(building);
 		BotType robotType1, robotType2;
 		robotType1 = botType(bot1);
 		robotType2 = botType(bot2);
@@ -28,31 +33,37 @@ public class Automail {
 		 * of the building, while the other robot (lower) will deliver to the bottom
 		 * half as well all priority items.
 		 */
-
+		if(robotType1 == BotType.BIG) {
+			robot1Big = true;
+			hasBig = true;
+		}
+		if(robotType2 == BotType.BIG) {
+			robot2Big = true;
+			hasBig = true;
+		}
+		
 		/** Initialize the RobotAction */
-		if (robotType1 == BotType.WEAK) {
-			// the weak robot will deliver to upper half, the lower robot will deliver all
-			// parcels too heavy for the weak robot
-			if (robotType2 != BotType.WEAK) {
-				// Constructor: Robot(delivery,mailPool, boolean upper, boolean allHeavy,boolean strong
-				// building)
-				robot2 = new Robot(delivery, mailPool, false, true,true, building);
-				robot1 = new Robot(delivery, mailPool, true, false,false, building);
+		//if both robots aren't weak
+		if (!(robotType1 == BotType.WEAK && robotType2 == BotType.WEAK)) {
+			if(robotType1 == BotType.WEAK || robotType2 == BotType.WEAK) {
+				mailDistribution = new MailDistribution(building,true);
+				lowerMailPool = mailDistribution.getLower();
+				upperMailPool = mailDistribution.getUpper();
+				// the weak robot will deliver to upper half, the lower robot will deliver all
+				// parcels too heavy for the weak robot
+					// Constructor: Robot(delivery,mailPool, boolean big ,boolean strong
+					// building)
+				robot2 = new Robot(delivery, lowerMailPool, hasBig,true, building);
+				robot1 = new Robot(delivery, upperMailPool, false,false, building);
 			} // Two weak robots is considered an invalid configuration, no initialization for
-				// 2 weak bots
-		} else if (robotType2 == BotType.WEAK) {
-			robot1 = new Robot(delivery, mailPool, false, true,true, building);
-			robot2 = new Robot(delivery, mailPool, true, false, false, building);
-		} else {
-			// If one robot is big and the other is strong, the big robot will deliver to
-			// the upper half of the building.
-			if (robotType2 == BotType.BIG) {
-				robot1 = new Robot(delivery, mailPool, false, false,true, building);
-				robot2 = new Robot(delivery, mailPool, true, false,true, building); // big
-			}else {
-				//if robot1 is big or both are strong
-				robot2 = new Robot(delivery, mailPool, false, false,true, building);
-				robot1 = new Robot(delivery, mailPool, true, false, true, building); 
+			else{
+				mailDistribution = new MailDistribution(building,false);
+				lowerMailPool = mailDistribution.getLower();
+				upperMailPool = mailDistribution.getUpper();
+				// If one robot is big and the other is strong, the big robot will deliver to
+				// the upper half of the building.
+				robot1 = new Robot(delivery, upperMailPool, robot1Big, true, building);
+				robot2 = new Robot(delivery, lowerMailPool, robot2Big, true, building); 
 			}
 		}
 	}
@@ -69,5 +80,6 @@ public class Automail {
 			return BotType.INVALID;
 		}
 	}
+	
 
 }

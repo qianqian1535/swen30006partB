@@ -34,9 +34,10 @@ public class Robot {
      * @param behaviour governs selection of mail items for delivery and behaviour on priority arrivals
      * @param delivery governs the final delivery
      * @param mailPool is the source of mail items
-     * @param strong is whether the robot can carry heavy items
+     * @param upper is whether the robot deliver to upper or lower floors, lower floor bots also deliver all priority items
+     * @param allHeavy is whether the robot delivers all the heavy items in the building
      */
-    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean strong, Building building){
+    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean upper, boolean allHeavy, boolean strong, Building building){
     	id = "R" + hashCode();
         // current_state = RobotState.WAITING;
     	current_state = RobotState.RETURNING;

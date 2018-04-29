@@ -2,7 +2,9 @@ package automail;
 
 // import exceptions.RobotNotInMailRoomException;
 import exceptions.TubeFullException;
+import strategies.IMailPool;
 
+import java.util.Queue;
 import java.util.Stack;
 
 /**
@@ -12,13 +14,16 @@ public class StorageTube {
 
     private int MAXIMUM_CAPACITY;
     public Stack<MailItem> tube;
+    IMailPool mailPool;
+    
 
     /**
      * Constructor for the storage tube
      */
-    public StorageTube(int size){
+    public StorageTube(int size, IMailPool mailPool){
         this.tube = new Stack<MailItem>();
         this.MAXIMUM_CAPACITY = size;
+        this.mailPool = mailPool;
     }
 
     /**
@@ -65,6 +70,26 @@ public class StorageTube {
      */
     public MailItem pop(){
         return tube.pop();
+    }
+    
+    public void emplyTube() {
+	    	while(!tube.isEmpty()) {
+	    		MailItem mailItem = tube.pop();
+	    		mailPool.addToPool(mailItem);
+	            System.out.printf("T: %3d > old addToPool [%s]%n", Clock.Time(), mailItem.toString());
+	    	}
+    }
+    
+    public void fillStorageTube() {
+    		Queue<MailItem> q= mailPool.getMail();
+	    	try{
+				while(!isFull() && !q.isEmpty()) {
+					addItem(q.remove());  // Could group/order by floor taking priority into account - but already better than simple
+				}
+			}
+		catch(TubeFullException e){
+				e.printStackTrace();
+		}
     }
 
 }

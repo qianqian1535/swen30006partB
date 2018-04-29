@@ -20,7 +20,6 @@ public class Robot {
     public RobotState current_state;
     private int current_floor;
     private int destination_floor;
-    private IMailPool mailPool;
     private boolean strong;
     private Building building;
     private MailItem deliveryItem;
@@ -45,14 +44,13 @@ public class Robot {
 	    	this.building = building;
 	   current_floor = building.getMailRoom();
 	   	if(big) {
-	   		tube = new StorageTube(6);
+	   		tube = new StorageTube(6,mailPool);
 	   	}
 	   	else {
-	   		tube = new StorageTube(4);
+	   		tube = new StorageTube(4,mailPool);
 	   	}
 	    behaviour = new MyRobotBehaviour(strong); //Apply creator principle
 	    this.delivery = delivery;
-	    this.mailPool = mailPool;
 	    this.strong = strong;
 	    this.deliveryCounter = 0;
     }
@@ -67,12 +65,8 @@ public class Robot {
     		case RETURNING:
     			/** If its current position is at the mailroom, then the robot should change state */
                 if(current_floor == building.getMailRoom()){
-                	while(!tube.isEmpty()) {
-                		MailItem mailItem = tube.pop();
-                		mailPool.addToPool(mailItem);
-                        System.out.printf("T: %3d > old addToPool [%s]%n", Clock.Time(), mailItem.toString());
-                	}
-                	changeState(RobotState.WAITING);
+                		tube.emplyTube();
+                		changeState(RobotState.WAITING);
                 } else {
                 	/** If the robot is not at the mailroom floor yet, then move towards it! */
                     moveTowards(building.getMailRoom());
@@ -80,16 +74,16 @@ public class Robot {
                 }
     		case WAITING:
     			/** Tell the sorter the robot is ready */
-    			mailPool.fillStorageTube(tube); //configurations
-                // System.out.println("Tube total size: "+tube.getTotalOfSizes());
-                /** If the StorageTube is ready and the Robot is waiting in the mailroom then start the delivery */
-                if(!tube.isEmpty()){
+    			tube.fillStorageTube(); //configurations
+            // System.out.println("Tube total size: "+tube.getTotalOfSizes());
+            /** If the StorageTube is ready and the Robot is waiting in the mailroom then start the delivery */
+            if(!tube.isEmpty()){
                 	deliveryCounter = 0; // reset delivery counter
         			behaviour.startDelivery();
         			setRoute();
                 	changeState(RobotState.DELIVERING);
-                }
-                break;
+            }
+            break;
     		case DELIVERING:
     			/** Check whether or not the call to return is triggered manually **/
     			boolean wantToReturn = behaviour.returnToMailRoom(tube);

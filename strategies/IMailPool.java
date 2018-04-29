@@ -1,7 +1,8 @@
 package strategies;
 
+import java.util.Queue;
+
 import automail.MailItem;
-import automail.StorageTube;
 
 /**
  * addToPool is called when there are mail items newly arrived at the building to add to the MailPool or
@@ -21,6 +22,8 @@ public interface IMailPool {
      * @param tube refers to the pack the robot uses to deliver mail.
      * @param strong is whether the tube belongs to a strong robot.
      */
-	void fillStorageTube(StorageTube tube);
+	Queue<MailItem> getMail();
+	
+	
     
 }

@@ -6,8 +6,6 @@ import java.util.Queue;
 
 import automail.MailItem;
 import automail.PriorityMailItem;
-import automail.StorageTube;
-import exceptions.TubeFullException;
 
 public class MailPool implements IMailPool{
 	
@@ -35,19 +33,12 @@ public class MailPool implements IMailPool{
 				}
 			}
 		}
-		mail.add(mailItem);
+		mail.add(mailItem); // add to end of mail
 	}
 	
 	
-	public void fillStorageTube(StorageTube tube) {
+	public Queue<MailItem> getMail() { // returns a queue of all mail in MailPool
 		Queue<MailItem> q = mail;
-		try{
-			while(!tube.isFull() && !q.isEmpty()) {
-				tube.addItem(q.remove());  // Could group/order by floor taking priority into account - but already better than simple
-			}
-		}
-		catch(TubeFullException e){
-			e.printStackTrace();
-		}
+		return q;
 	}
 }

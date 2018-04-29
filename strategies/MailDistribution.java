@@ -13,8 +13,8 @@ public class MailDistribution {
 	private boolean hasWeak;
 	
 	public MailDistribution(Building building, boolean hasWeak){
-		this.lowerPool = new LowerMailPool();
-		this.upperPool = new UpperMailPool();
+		this.lowerPool = new MailPool();
+		this.upperPool = new MailPool();
 		divider = building.getFloors() / 2;  // Top normal floor for strong robot
 		this.hasWeak = hasWeak;
 	}

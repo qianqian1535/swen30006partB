@@ -9,12 +9,12 @@ import automail.PriorityMailItem;
 import automail.StorageTube;
 import exceptions.TubeFullException;
 
-public class LowerMailPool implements IMailPool{
+public class MailPool implements IMailPool{
 	
 	private LinkedList<MailItem> mail;
 	
 	
-	public LowerMailPool() {
+	public MailPool() {
 		mail = new LinkedList<MailItem>();
 	}
 	

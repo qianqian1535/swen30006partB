@@ -7,22 +7,19 @@ import strategies.IRobotBehaviour;
 import strategies.MyRobotBehaviour;
 
 /**
- * The robot delivers mail!
+ * The robot handle the movement of robot around the building only
  */
 public class Robot {
 
 	StorageTube tube;
     IRobotBehaviour behaviour;
-    IMailDelivery delivery;
     protected final String id;
     /** Possible states the robot can be in */
     public enum RobotState { DELIVERING, WAITING, RETURNING }
     public RobotState current_state;
     private int current_floor;
     private int destination_floor;
-    private boolean strong;
     private Building building;
-    private MailItem deliveryItem;
     private boolean big;
     
     private int deliveryCounter;
@@ -33,9 +30,8 @@ public class Robot {
      * also set it to be waiting for mail.
      * @param behaviour governs selection of mail items for delivery and behaviour on priority arrivals
      * @param delivery governs the final delivery
-     * @param mailPool is the source of mail items
-     * @param upper is whether the robot deliver to upper or lower floors, lower floor bots also deliver all priority items
-     * @param allHeavy is whether the robot delivers all the heavy items in the building
+     * @param mailPool is the source of mail items, either upper or lower
+     * @param big is whether the robot delivers is big or not
      */
     public Robot(IMailDelivery delivery, IMailPool mailPool, boolean big, boolean strong, Building building){
 	    	id = "R" + hashCode();
@@ -44,14 +40,12 @@ public class Robot {
 	    	this.building = building;
 	   current_floor = building.getMailRoom();
 	   	if(big) {
-	   		tube = new StorageTube(6,mailPool);
+	   		tube = new StorageTube(6,mailPool,strong, delivery);
 	   	}
 	   	else {
-	   		tube = new StorageTube(4,mailPool);
+	   		tube = new StorageTube(4,mailPool,strong, delivery);
 	   	}
 	    behaviour = new MyRobotBehaviour(strong); //Apply creator principle
-	    this.delivery = delivery;
-	    this.strong = strong;
 	    this.deliveryCounter = 0;
     }
 
@@ -65,7 +59,7 @@ public class Robot {
     		case RETURNING:
     			/** If its current position is at the mailroom, then the robot should change state */
                 if(current_floor == building.getMailRoom()){
-                		tube.emplyTube();
+                		tube.emptyTube();
                 		changeState(RobotState.WAITING);
                 } else {
                 	/** If the robot is not at the mailroom floor yet, then move towards it! */
@@ -89,7 +83,7 @@ public class Robot {
     			boolean wantToReturn = behaviour.returnToMailRoom(tube);
     			if(current_floor == destination_floor){ // If already here drop off either way
                     /** Delivery complete, report this to the simulator! */
-                    delivery.deliver(deliveryItem);
+                    tube.deliverMail();
                     deliveryCounter++;
                     if(deliveryCounter > 4 && big){
                     		throw new ExcessiveDeliveryException();
@@ -133,11 +127,8 @@ public class Robot {
      * Sets the route for the robot
      */
     private void setRoute() throws ItemTooHeavyException{
-        /** Pop the item from the StorageUnit */
-        deliveryItem = tube.pop();
-        if (!strong && deliveryItem.weight > 2000) throw new ItemTooHeavyException(); 
-        /** Set the destination floor */
-        destination_floor = deliveryItem.getDestFloor();
+        
+        destination_floor = tube.getMailDestination();//get destination of current mail item
     }
 
     /**
@@ -163,7 +154,7 @@ public class Robot {
     	}
     	current_state = nextState;
     	if(nextState == RobotState.DELIVERING){
-            System.out.printf("T: %3d > %11s-> [%s]%n", Clock.Time(), id, deliveryItem.toString());
+            System.out.printf("T: %3d > %11s-> [%s]%n", Clock.Time(), id, tube.deliveryItem.toString());
     	}
     }
     

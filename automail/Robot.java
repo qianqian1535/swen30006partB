@@ -24,6 +24,7 @@ public class Robot {
     private boolean strong;
     private Building building;
     private MailItem deliveryItem;
+    private boolean big;
     
     private int deliveryCounter;
     
@@ -37,18 +38,23 @@ public class Robot {
      * @param upper is whether the robot deliver to upper or lower floors, lower floor bots also deliver all priority items
      * @param allHeavy is whether the robot delivers all the heavy items in the building
      */
-    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean allHeavy, boolean strong, Building building){
-    	id = "R" + hashCode();
-        // current_state = RobotState.WAITING;
-    	current_state = RobotState.RETURNING;
-    	this.building = building;
-   current_floor = building.getMailRoom();
-        tube = new StorageTube();
-        behaviour = new MyRobotBehaviour(strong); //Apply creator principle
-        this.delivery = delivery;
-        this.mailPool = mailPool;
-        this.strong = strong;
-        this.deliveryCounter = 0;
+    public Robot(IMailDelivery delivery, IMailPool mailPool, boolean big, boolean strong, Building building){
+	    	id = "R" + hashCode();
+	        // current_state = RobotState.WAITING;
+	    	current_state = RobotState.RETURNING;
+	    	this.building = building;
+	   current_floor = building.getMailRoom();
+	   	if(big) {
+	   		tube = new StorageTube(6);
+	   	}
+	   	else {
+	   		tube = new StorageTube(4);
+	   	}
+	    behaviour = new MyRobotBehaviour(strong); //Apply creator principle
+	    this.delivery = delivery;
+	    this.mailPool = mailPool;
+	    this.strong = strong;
+	    this.deliveryCounter = 0;
     }
 
     /**
@@ -91,8 +97,11 @@ public class Robot {
                     /** Delivery complete, report this to the simulator! */
                     delivery.deliver(deliveryItem);
                     deliveryCounter++;
-                    if(deliveryCounter > 4){
-                    	throw new ExcessiveDeliveryException();
+                    if(deliveryCounter > 4 && big){
+                    		throw new ExcessiveDeliveryException();
+                    }
+                    else if(deliveryCounter > 6 && !big) { //unsure why big variable changing but it is
+                    		throw new ExcessiveDeliveryException();
                     }
                     /** Check if want to return or if there are more items in the tube*/
                     if(wantToReturn || tube.isEmpty()){

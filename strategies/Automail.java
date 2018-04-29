@@ -62,8 +62,18 @@ public class Automail {
 				upperMailPool = mailDistribution.getUpper();
 				// If one robot is big and the other is strong, the big robot will deliver to
 				// the upper half of the building.
-				robot1 = new Robot(delivery, upperMailPool, robot1Big, true, building);
-				robot2 = new Robot(delivery, lowerMailPool, robot2Big, true, building); 
+				if(robot1Big) { //at least one big robot --> upper pool
+					robot1 = new Robot(delivery, upperMailPool, robot1Big, true, building);
+					robot2 = new Robot(delivery, lowerMailPool, robot2Big, true, building); 
+				}
+				else if (robot2Big) { //robot 2 big --> upperPool
+					robot1 = new Robot(delivery, lowerMailPool, false, true, building);
+					robot2 = new Robot(delivery, upperMailPool, robot2Big, true, building);
+				}
+				else { // ALL strong
+					robot1 = new Robot(delivery, lowerMailPool, false, true, building);
+					robot2 = new Robot(delivery, upperMailPool, false, true, building);
+				}
 			}
 		}
 	}

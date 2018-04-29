@@ -29,7 +29,7 @@ public class MailDistribution {
 			//add to pool of weak mail item
 			upperPool.addToPool(mailItem);
 		}
-		else if(mailItem.getDestFloor() <= divider) {
+		else if(mailItem.getDestFloor() <= divider || mailItem instanceof PriorityMailItem) { // lower robot always delivers all priority mail
 			//lower if no weak item
 			lowerPool.addToPool(mailItem);
 		}

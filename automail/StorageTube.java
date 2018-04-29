@@ -36,8 +36,9 @@ public class StorageTube {
         return tube.isEmpty();
     }
 
-    public MailItem peek() {
-    	return tube.peek();
+    public int mailPriority() {
+    		MailItem item = tube.peek();
+		return (item instanceof PriorityMailItem) ? ((PriorityMailItem) item).getPriorityLevel() : 0;
     }
 
     /**

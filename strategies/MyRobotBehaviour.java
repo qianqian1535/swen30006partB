@@ -24,8 +24,7 @@ public class MyRobotBehaviour implements IRobotBehaviour {
     }
  
 	private int tubePriority(StorageTube tube) {  // Assumes at least one item in tube
-		MailItem item = tube.peek();
-		return (item instanceof PriorityMailItem) ? ((PriorityMailItem) item).getPriorityLevel() : 0;
+		return tube.mailPriority();
 	}
 	
 	@Override
